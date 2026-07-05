@@ -19,6 +19,7 @@ export async function register({ username, email, password }) {
 }
 
 export async function login({ email, password }) {
+    console.log(import.meta.env.VITE_API_URL)
     try {
         const response = await api.post("/api/auth/login", {
             email, password
