@@ -9,6 +9,9 @@ const interviewReportModel = require("../models/interviewReport.model")
  */
 async function generateInterViewReportController(req, res) {
     try {
+        console.log("====== Interview endpoint hit ======");
+        console.log("User:", req.user);
+        console.log("Body:", req.body);
         const { selfDescription, jobDescription } = req.body
 
         if (!jobDescription) {

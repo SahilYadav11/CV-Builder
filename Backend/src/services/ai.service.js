@@ -34,6 +34,7 @@ const interviewReportSchema = z.object({
 
 async function generateInterviewReport({ resume, selfDescription, jobDescription }) {
 
+    console.log("Calling Gemini API...");
 
     const prompt = `Generate an interview report for a candidate with the following details:
                         Resume: ${resume}
@@ -49,6 +50,8 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
             responseSchema: zodToJsonSchema(interviewReportSchema),
         }
     })
+
+    console.log("Gemini responded successfully");
 
     return JSON.parse(response.text)
 
