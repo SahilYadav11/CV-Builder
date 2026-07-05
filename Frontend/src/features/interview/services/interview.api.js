@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "http://localhost:3000",
+    baseURL: import.meta.env.VITE_API_URL,
     withCredentials: true,
 })
 
@@ -10,7 +10,7 @@ const api = axios.create({
  * @description Service to generate interview report based on user self description, resume and job description.
  */
 export const generateInterviewReport = async ({ jobDescription, selfDescription }) => {
-    const response = await api.post("/api/interview/", { jobDescription, selfDescription })
+    const response = await api.post("/api/interview", { jobDescription, selfDescription })
     return response.data
 }
 
