@@ -61,7 +61,7 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
 
 
 async function generatePdfFromHtml(htmlContent) {
-
+    console.log("Executable Path:", puppeteer.executablePath());
     const browser = await puppeteer.launch({
         headless: true,
         executablePath: await puppeteer.executablePath(),
