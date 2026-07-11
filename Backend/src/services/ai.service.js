@@ -1,7 +1,7 @@
 const { GoogleGenAI } = require("@google/genai")
 const { z } = require("zod")
 const { zodToJsonSchema } = require("zod-to-json-schema")
-const puppeteer = require("puppeteer")
+const { chromium } = require("playwright")
 
 const ai = new GoogleGenAI({
     apiKey: process.env.GOOGLE_GENAI_API_KEY
@@ -61,39 +61,37 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
 
 
 async function generatePdfFromHtml(htmlContent) {
-    console.log("Executable Path:", puppeteer.executablePath());
-    const browser = await puppeteer.launch({
-  executablePath:
-    process.env.PUPPETEER_EXECUTABLE_PATH ||
-    "/opt/render/.cache/puppeteer/chrome/linux-145.0.7632.77/chrome-linux64/chrome",
-  headless: true,
-  args: [
-    "--no-sandbox",
-    "--disable-setuid-sandbox",
-    "--disable-dev-shm-usage",
-    "--disable-gpu",
-  ],
-});
-
-    const page = await browser.newPage();
-
-    await page.setContent(htmlContent, {
-        waitUntil: "networkidle0"
+    const browser = await chromium.launch({
+        headless: true,
+        args: [
+            "--no-sandbox",
+            "--disable-setuid-sandbox",
+            "--disable-dev-shm-usage"
+        ]
     });
 
-    const pdfBuffer = await page.pdf({
-        format: "A4",
-        margin: {
-            top: "20mm",
-            bottom: "20mm",
-            left: "15mm",
-            right: "15mm"
-        }
-    });
+    try {
+        const page = await browser.newPage();
 
-    await browser.close();
+        await page.setContent(htmlContent, {
+            waitUntil: "networkidle"
+        });
 
-    return pdfBuffer;
+        const pdfBuffer = await page.pdf({
+            format: "A4",
+            margin: {
+                top: "20mm",
+                bottom: "20mm",
+                left: "15mm",
+                right: "15mm"
+            },
+            printBackground: true
+        });
+
+        return pdfBuffer;
+    } finally {
+        await browser.close();
+    }
 }
 
 async function generateResumePdf({ resume, selfDescription, jobDescription }) {
