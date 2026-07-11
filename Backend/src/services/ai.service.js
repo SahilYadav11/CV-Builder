@@ -63,15 +63,17 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
 async function generatePdfFromHtml(htmlContent) {
     console.log("Executable Path:", puppeteer.executablePath());
     const browser = await puppeteer.launch({
-        headless: true,
-        executablePath: await puppeteer.executablePath(),
-        args: [
-            "--no-sandbox",
-            "--disable-setuid-sandbox",
-            "--disable-dev-shm-usage",
-            "--disable-gpu"
-        ]
-    });
+  executablePath:
+    process.env.PUPPETEER_EXECUTABLE_PATH ||
+    "/opt/render/.cache/puppeteer/chrome/linux-145.0.7632.77/chrome-linux64/chrome",
+  headless: true,
+  args: [
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--disable-dev-shm-usage",
+    "--disable-gpu",
+  ],
+});
 
     const page = await browser.newPage();
 
