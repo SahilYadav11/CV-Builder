@@ -1,7 +1,6 @@
 const { GoogleGenAI } = require("@google/genai")
 const { z } = require("zod")
 const { zodToJsonSchema } = require("zod-to-json-schema")
-const { chromium } = require("playwright")
 
 const ai = new GoogleGenAI({
     apiKey: process.env.GOOGLE_GENAI_API_KEY
@@ -60,51 +59,22 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
 
 
 
-async function generatePdfFromHtml(htmlContent) {
-    console.log(await chromium.executablePath());
-    const browser = await chromium.launch({
-        headless: true,
-        args: [
-            "--no-sandbox",
-            "--disable-setuid-sandbox",
-            "--disable-dev-shm-usage"
-        ]
-    });
-
-    try {
-        const page = await browser.newPage();
-
-        await page.setContent(htmlContent, {
-            waitUntil: "networkidle"
-        });
-
-        const pdfBuffer = await page.pdf({
-            format: "A4",
-            margin: {
-                top: "20mm",
-                bottom: "20mm",
-                left: "15mm",
-                right: "15mm"
-            },
-            printBackground: true
-        });
-
-        return pdfBuffer;
-    } finally {
-        await browser.close();
-    }
-}
-
 async function generateResumePdf({ resume, selfDescription, jobDescription }) {
 
     const resumePdfSchema = z.object({
-        html: z.string().describe("The HTML content of the resume which can be converted to PDF using any library like puppeteer")
+        html: z.string().describe("The HTML content of the resume which can be converted to PDF")
     })
 
     const prompt = `Generate resume for a candidate with the following details:
                         Resume: ${resume}
                         Self Description: ${selfDescription}
                         Job Description: ${jobDescription}
+                        Layout requirements:
+                        - Keep page margins small.
+                        - Use 10px-15px container padding.
+                        - Do not leave excessive white space at the top.
+                        - Keep section spacing compact.
+                        - The resume should fit within 1 page if possible, otherwise 2 pages.
 
                         the response should be a JSON object with a single field "html" which contains the HTML content of the resume which can be converted to PDF using any library like puppeteer.
                         The resume should be tailored for the given job description and should highlight the candidate's strengths and relevant experience. The HTML content should be well-formatted and structured, making it easy to read and visually appealing.
@@ -126,9 +96,7 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
 
     const jsonContent = JSON.parse(response.text)
 
-    const pdfBuffer = await generatePdfFromHtml(jsonContent.html)
-
-    return pdfBuffer
+    return jsonContent.html
 
 }
 
