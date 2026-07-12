@@ -61,6 +61,8 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
 
 
 async function generatePdfFromHtml(htmlContent) {
+    console.log("===== PLAYWRIGHT VERSION =====");
+    console.log("Launching Playwright...");
     const browser = await chromium.launch({
         headless: true,
         args: [
